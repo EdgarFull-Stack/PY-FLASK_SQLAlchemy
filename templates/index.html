@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang='LT'>
+<head>
+<meta charset = "UTF-8">
+<title>Mokiniai</title>
+</head>
+<body>
+<h4>Mokiniu lentele</h4>
+<form action ="" method="GET">
+    <p><input type="text" name="searchlaukelis"></p>
+    <p><input type="submit" value="filtruoti"></p>
+</form>
+{% for elem in mokinys_rows %}
+<p> {{ elem }}</p>
+{% endfor %}
+</body>
+</html>
