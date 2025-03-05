@@ -28,14 +28,23 @@ class Mokinys(db.Model):
 with app.app_context():
     db.create_all()
 
-    # prideti = Mokinys('Jonas','Jon', 8)
+    # prideti = Mokinys('Marius','Mar', 12)
     # db.session.add(prideti)
     # db.session.commit()
 
-@app.route('/')
+# @app.route('/')
+# def home():
+#     all_rows = Mokinys.query.all()
+#     return render_template('index.html', mokinys_rows=all_rows)
+@app.route("/")
 def home():
-    all_rows = Mokinys.query.all()
-    return render_template('index.html', mokinys_rows=all_rows)
+    search_text = request.args.get("searchlaukelis")
+    if search_text:
+        filtered_rows = Mokinys.query.filter(Mokinys.vardas.ilike(f'%{search_text}%'))
+        return render_template("index.html", mokinys_rows=filtered_rows)
+    else:
+        all_rows = Mokinys.query.all()
+        return render_template("index.html", mokinys_rows=all_rows)
 
 if __name__ == '__main__':
     app.run()
