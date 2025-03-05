@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 
@@ -16,6 +16,10 @@ class Mokinys(db.Model):
     pavarde = db.Column(db.String)
     klase = db.Column(db.Integer)
     sukurimo_data = db.Column(db.DateTime, default=datetime.datetime.now)
+
+    @property
+    def sekanti_klase(self):
+        return self.klase + 1
 
     def __init__(self,vardas,pavarde,klase):
         self.vardas = vardas
@@ -36,15 +40,32 @@ with app.app_context():
 # def home():
 #     all_rows = Mokinys.query.all()
 #     return render_template('index.html', mokinys_rows=all_rows)
-@app.route("/")
+@app.route('/')
 def home():
-    search_text = request.args.get("searchlaukelis")
+    search_text = request.args.get('searchlaukelis')
     if search_text:
         filtered_rows = Mokinys.query.filter(Mokinys.vardas.ilike(f'%{search_text}%'))
-        return render_template("index.html", mokinys_rows=filtered_rows)
+        return render_template('index.html', mokinys_rows=filtered_rows)
     else:
         all_rows = Mokinys.query.all()
-        return render_template("index.html", mokinys_rows=all_rows)
+        return render_template('index.html', mokinys_rows=all_rows)
+
+@app.route('/prideti-mokini', methods=['GET', 'POST'])
+def prideti_mokini():
+    if request.method == 'GET':
+        return render_template('ivedimo_forma.html')
+    elif request.method == 'POST':
+        vardas = request.form.get('laukelisvardas')
+        pavarde = request.form.get('laukelispavarde')
+        try:
+            klase = float(request.form.get('laukelisklase'))
+        except:
+            raise ('Klase should be float')
+        if vardas and pavarde and klase:
+            new_mokinys_row = Mokinys(vardas, pavarde, klase)
+            db.session.add(new_mokinys_row)
+            db.session.commit()
+        return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run()
